@@ -15,33 +15,14 @@ import argparse
 import configparser
 import requests
 import os
-import logging
 import re
 
 
-#Setup logging
-if not os.path.exists('logs'):
-    os.makedirs('logs')
-logFile = os.path.join('logs', 'GTMPropUpdate_log.log')
 
-headers1 = {
+headers = {
         "Content-Type": "application/json"
     }
 
-#Set the format of logging in console and file seperately
-logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-consoleFormatter = logging.Formatter("%(message)s")
-rootLogger = logging.getLogger()
-
-
-logfileHandler = logging.FileHandler(logFile, mode='w')
-logfileHandler.setFormatter(logFormatter)
-rootLogger.addHandler(logfileHandler)
-
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(consoleFormatter)
-rootLogger.addHandler(consoleHandler)
-rootLogger.setLevel(logging.INFO)
 
 try:
     config = configparser.ConfigParser()
@@ -57,7 +38,7 @@ try:
     			access_token = access_token
                 )
 except (NameError, AttributeError, KeyError):
-    rootLogger.info("\nLooks like '~/.edgerc' file is missing\n")
+    print("\nLooks like '~/.edgerc' file is missing\n")
     exit()
 
 #Main arguments
@@ -66,21 +47,17 @@ parser.add_argument("-help",help="Use -h for detailed help options",action="stor
 parser.add_argument("-updateProperties",help="Enter Property Name to change",action="store_true")
 parser.add_argument("-property",help="Enter property name",nargs='*')
 
-
-parser.add_argument("-debug",help="DEBUG mode to generate additional logs for troubleshooting",action="store_true")
-
 args = parser.parse_args()
 
 
 if args.updateProperties:
 
-    
     if not args.property:
-        rootLogger.info('Please enter property name using -property option.')
+        print('Please enter property name using -property option.')
         exit()
     
     property_names = args.property
-    print (property_names)
+    #print (property_names)
 
     #Iterate through each property
     for propertyName in property_names:
@@ -91,7 +68,7 @@ if args.updateProperties:
             propertyJson= json.dumps(listPropertyResponse.json(),
                 indent=4, sort_keys=True,
                     separators=(',', ': '), ensure_ascii=False)
-            print(f"Property:{propertyName} JSON is \n{propertyJson}")
+            #print(f"Property:{propertyName} JSON is \n{propertyJson}")
 
             if (propertyName == 'www-geo'):
                 handoutCnametoReplace = 'www-ip.bdutia.akadns.net'
@@ -99,14 +76,14 @@ if args.updateProperties:
             if (propertyName == 'store-geo'):
                 handoutCnametoReplace = 'store-ip.bdutia.akadns.net'
 
-            print (f"Handout Cname:{handoutCnametoReplace} replacement for {propertyName}")
+            #print (f"Handout Cname:{handoutCnametoReplace} replacement for {propertyName}")
 
             #new json which has replacing handout cname with localhost
             handoutCnameRegex = r".*" + re.escape(handoutCnametoReplace) + r".*"
             if re.search(handoutCnameRegex, propertyJson, re.IGNORECASE):
-                print("Handout Cname Match")
+                #print("Handout Cname Match")
                 updatedPropertyJson = propertyJson.replace(handoutCnametoReplace,"localhost")
-                print(f"Updated JSON is \n{updatedPropertyJson}")
+                #print(f"Updated JSON is \n{updatedPropertyJson}")
 
                 #Writing it to file so that we can reference what was written
                 with open(propertyName+'.json','w',encoding='utf8') as propertyHandler:
@@ -116,15 +93,15 @@ if args.updateProperties:
                 updatePropertyResponse = session.put(updatePropertyUrl,data=updatedPropertyJson,headers=headers)
 
                 if updatePropertyResponse.status_code == 200:
-                    print ("Update Successful")
+                    print (f"Property:{propertyName} successfully updated")
                 else:
                     print (f"Something failed for property:{propertyName} with response code:{updatePropertyResponse.status_code}")
 
 
             else:
-                print("handoutcname in script is different from portal or its already pointing to localhost")
+                print(f"Property:{propertyName} not updated.handoutcname in script is different from portal or its already pointing to localhost")
 
 
         else:
-            rootLogger.info('Unable to fetch property details for propertyName')
+            print('Unable to fetch property details for propertyName:{propertyName}')
             #exit()
