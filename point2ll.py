@@ -83,74 +83,48 @@ if args.updateProperties:
     print (property_names)
 
     #Iterate through each property
-    for property_name in property_names:
-        listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+property_name
+    for propertyName in property_names:
+        listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+propertyName
         listPropertyResponse = session.get(listPropertyUrl) 
 
         if listPropertyResponse.status_code == 200:
-            with open(property_name+'.json','w',encoding='utf8') as propertyHandler:
-                propertyJson= json.dumps(listPropertyResponse.json(),
-                 indent=4, sort_keys=True,
-                      separators=(',', ': '), ensure_ascii=False)
-                print(f"Property:{property_name} JSON is \n{propertyJson}")
+            propertyJson= json.dumps(listPropertyResponse.json(),
+                indent=4, sort_keys=True,
+                    separators=(',', ': '), ensure_ascii=False)
+            print(f"Property:{propertyName} JSON is \n{propertyJson}")
 
-                if (property_name == 'www-geo'):
-                    handoutCnametoReplace = 'www-ip.bdutia.akadns.net'
+            if (propertyName == 'www-geo'):
+                handoutCnametoReplace = 'www-ip.bdutia.akadns.net'
 
-                if (property_name == 'store-geo'):
-                    handoutCnametoReplace = 'store-ip.bdutia.akadns.net1'
+            if (propertyName == 'store-geo'):
+                handoutCnametoReplace = 'store-ip.bdutia.akadns.net'
 
-                print ("Handout Cname replacement ",handoutCnametoReplace,property_name)
+            print (f"Handout Cname:{handoutCnametoReplace} replacement for {propertyName}")
 
-                #new json which has replacing handout cname with localhost
-                handoutCnameRegex = r".*" + re.escape(handoutCnametoReplace) + r".*"
-                if re.search(handoutCnameRegex, propertyJson, re.IGNORECASE):
-                    print("Handout Cname Match")
-                    updatedPropertyJson = propertyJson.replace(handoutCnametoReplace,"localhost")
-                    print(f"Updated JSON is \n{updatedPropertyJson}")
+            #new json which has replacing handout cname with localhost
+            handoutCnameRegex = r".*" + re.escape(handoutCnametoReplace) + r".*"
+            if re.search(handoutCnameRegex, propertyJson, re.IGNORECASE):
+                print("Handout Cname Match")
+                updatedPropertyJson = propertyJson.replace(handoutCnametoReplace,"localhost")
+                print(f"Updated JSON is \n{updatedPropertyJson}")
+
+                #Writing it to file so that we can reference what was written
+                with open(propertyName+'.json','w',encoding='utf8') as propertyHandler:
                     propertyHandler.write(updatedPropertyJson)
 
+                updatePropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+propertyName
+                updatePropertyResponse = session.put(updatePropertyUrl,data=updatedPropertyJson,headers=headers)
 
+                if updatePropertyResponse.status_code == 200:
+                    print ("Update Successful")
                 else:
-                    print("Either handout cname changed on portal or the one mentioned in this script isn't updated")
+                    print (f"Something failed for property:{propertyName} with response code:{updatePropertyResponse.status_code}")
+
+
+            else:
+                print("handoutcname in script is different from portal or its already pointing to localhost")
 
 
         else:
-            rootLogger.info('Unable to fetch property details for property_name')
+            rootLogger.info('Unable to fetch property details for propertyName')
             #exit()
-
-
-
-    '''
-    #listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/www-geo'
-    listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+property_name
-    listPropertyResponse = session.get(listPropertyUrl) 
-
-    if listPropertyResponse.status_code == 200:
-         #with open('www-geo.json','w',encoding='utf8') as propertyHandler:
-         with open(property_name+'.json','w',encoding='utf8') as propertyHandler:
-            propertyJson= json.dumps(listPropertyResponse.json(),
-                 indent=4, sort_keys=True,
-                      separators=(',', ': '), ensure_ascii=False)
-            print(propertyJson)
-
-            #propertyHandler.write(propertyJson)
-
-            propertyHandler.write(propertyJson.replace("www-ip.bdutia.akadns.net","localhost"))
- 
-    else:
-        rootLogger.info('Unable to fetch property details')
-        exit()
-
-    with open(property_name+'.json','r') as propertyFileHandler:
-            propertyRuleSet = json.loads(propertyFileHandler.read())
-            propertyRuleSet = json.dumps(propertyRuleSet)
-            print (propertyRuleSet)
-            updatePropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+property_name
-            updatePropertyResponse = session.put(updatePropertyUrl,data=propertyRuleSet,headers=headers1)
-
-            if updatePropertyResponse.status_code == 200:
-                print ("Update Successful")
-            else:
-                print ("Something failed with response code",updatePropertyResponse.status_code)
-    '''
