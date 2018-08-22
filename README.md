@@ -13,10 +13,9 @@ In order to use this module, you need to:
 
 ## Functionality
 This program provides the following functionality:
-* Generates an audit file that lists each property and all Origin behavior details to a .xslx file
+* Update multiple GTM properties belonging to a domain and point them to localhost using command line 
 
+### Usage
+python3 point2ll.py -updateProperties -property [LIST OF PROPERTIES]
+e.g. python3 point2ll.py -updateProperties -property www-geo store-geo
 
-### generateAudit
-Lists each property and all Origin Server behavior details outputs to a .xslx file 
-
-(Note: Does not look at any origin references in advanced metadata)
