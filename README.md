@@ -17,5 +17,5 @@ This program provides the following functionality:
 
 ### Usage
 python3 point2ll.py -updateProperties -property [LIST OF PROPERTIES]
-e.g. python3 point2ll.py -updateProperties -property www-geo store-geo
+* e.g. python3 point2ll.py -updateProperties -property www-geo store-geo
 
