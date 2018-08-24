@@ -18,11 +18,9 @@ import os
 import re
 
 
-
 headers = {
         "Content-Type": "application/json"
     }
-
 
 try:
     config = configparser.ConfigParser()
@@ -55,6 +53,15 @@ if args.updateProperties:
     if not args.property:
         print('Please enter property name using -property option.')
         exit()
+
+    #Reading GTM property to handout cname map from a file
+    propertyhandoutCnameDict = {}
+    with open ('propertyToDataCenterFile','r') as propertyhandoutCnameDictHandler:
+        for line in propertyhandoutCnameDictHandler:
+            propertyName, handoutCname = line.partition("=")[::2]
+            propertyhandoutCnameDict[propertyName.strip()] = handoutCname.strip()
+
+    #print (propertyhandoutCnameDict)
     
     property_names = args.property
     #print (property_names)
@@ -70,11 +77,15 @@ if args.updateProperties:
                     separators=(',', ': '), ensure_ascii=False)
             #print(f"Property:{propertyName} JSON is \n{propertyJson}")
 
-            if (propertyName == 'www-geo'):
-                handoutCnametoReplace = 'www-ip.bdutia.akadns.net'
+            #If property name specified in the file is different than API results than below block will take care of that issue
+            try:
+                handoutCnametoReplace = propertyhandoutCnameDict[propertyName]
+                #print (f"handoutCnametoReplace:{handoutCnametoReplace}")
 
-            if (propertyName == 'store-geo'):
-                handoutCnametoReplace = 'store-ip.bdutia.akadns.net'
+            except KeyError as e:
+                print (f"Property Name specified in the file is different than Property:{propertyName} in API results")
+                continue
+
 
             #print (f"Handout Cname:{handoutCnametoReplace} replacement for {propertyName}")
 
@@ -99,9 +110,9 @@ if args.updateProperties:
 
 
             else:
-                print(f"Property:{propertyName} not updated.handoutcname in script is different from portal or its already pointing to localhost")
+                print(f"Property:{propertyName} not updated. Its already pointing to localhost")
 
-
+        
         else:
             print('Unable to fetch property details for propertyName:{propertyName}')
             #exit()
