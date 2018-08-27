@@ -59,7 +59,7 @@ args = parser.parse_args()
 if not args.property:
     print('Please enter property name using -property option.')
     exit()
-property_names = args.property
+propertyNames = args.property
 
 
 if args.updateCnameToLh:
@@ -70,7 +70,7 @@ if args.updateCnameToLh:
     print ("Updating Properties to point to Local Host")
 
     #Iterate through each property
-    for propertyName in property_names:
+    for propertyName in propertyNames:
         listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+propertyName
         listPropertyResponse = session.get(listPropertyUrl) 
 
@@ -125,7 +125,7 @@ if args.updateCnameToLh:
 
 
 if args.updateLhToCname:
-    #print (property_names)
+    #print (propertyNames)
 
     if not os.path.exists('LhToCnameFolder'):
         os.makedirs('LhToCnameFolder')
@@ -133,7 +133,7 @@ if args.updateLhToCname:
     print ("Updating Properties to point to valid handout Cname")
 
         #Iterate through each property
-    for propertyName in property_names:
+    for propertyName in propertyNames:
         listPropertyUrl = 'https://' + access_hostname + '/config-gtm/v1/domains/bdutia.akadns.net/properties/'+propertyName
         listPropertyResponse = session.get(listPropertyUrl) 
 
