@@ -13,11 +13,15 @@ In order to use this module, you need to:
 
 ## Functionality
 This program provides the following functionality:
-* 1. Update handout cname of multiple GTM properties(In this case from valid cname to localhost). Input to this program comes from file 'propertyToHandOutCname' file, which has entries like PROPERTY_NAME=HANDOUT_CNAME_TO_REPLACE
-* 2. Reverse the above change. Point properties back to original state (before 1)HANDOUT_CNAME_TO_REPLACE from localhost
+ 1. Update handout cname of multiple GTM properties(In this case from valid cname to localhost). Input to this program comes from file 'propertyToHandOutCname' file, which has entries like PROPERTY_NAME=HANDOUT_CNAME_TO_REPLACE
+ 2. Reverse the above change. Point properties back to original state (before i)HANDOUT_CNAME_TO_REPLACE from localhost
 
 
 ### Usage
-python3 point2ll.py -updateProperties -property [LIST OF PROPERTIES]
-* e.g. python3 point2ll.py -updateProperties -property www-geo store-geo
+python3 point2ll.py -updateCnameToLh -property [LIST OF PROPERTIES]
+* e.g. python3 point2ll.py -updateLhToCname -property www-geo store-geo
+
+python3 point2ll.py -updateLhToCname -property [LIST OF PROPERTIES]
+* python3 point2ll.py -updateLhToCname -property www-geo store-geo
+
 
